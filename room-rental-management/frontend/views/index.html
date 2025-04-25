@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Rental Management</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        header nav {
+            margin-top: 10px;
+        }
+        header nav a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        header nav a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .search-bar input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        .search-bar button {
+            padding: 12px 20px;
+            margin-left: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+        .rental-list {
+            margin-top: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .rental-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .rental-list th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #eee;
+        }
+        .rental-list td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .rental-list tr:hover {
+            background-color: #f5f7fa;
+        }
+        .rental-list input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .rental-item {
+            display: flex;
+            align-items: center;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .actions .create {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .actions .create:hover {
+            background-color: #27ae60;
+        }
+        .actions .delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .actions .delete:hover {
+            background-color: #c0392b;
+        }
+        .form-container {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-container h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        .form-container input,
+        .form-container select,
+        .form-container textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-container input:focus,
+        .form-container select:focus,
+        .form-container textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        .form-container textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .form-container .cancel {
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .form-container .cancel:hover {
+            background-color: #7f8c8d;
+        }
+        .form-container .submit {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .form-container .submit:hover {
+            background-color: #27ae60;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: modalFadeIn 0.3s;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .modal-buttons .confirm {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .modal-buttons .confirm:hover {
+            background-color: #c0392b;
+        }
+        .modal-buttons .cancel {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .modal-buttons .cancel:hover {
+            background-color: #7f8c8d;
+        }
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Room Rental Management System</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Dashboard</a>
+            <a href="#">Reports</a>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search by room code, tenant name, or phone number">
+            <button onclick="searchRentals()">Search</button>
+        </div>
+        <div class="rental-list" id="rental-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll()"></th>
+                        <th>STT</th>
+                        <th>Mã phòng trọ</th>
+                        <th>Tên người thuê trọ</th>
+                        <th>Số điện thoại</th>
+                        <th>Ngày bắt đầu thuê</th>
+                        <th>Hình thức thanh toán</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody id="rental-table-body">
+                    <!-- Rental data will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="actions">
+            <button class="create" onclick="showCreateForm()">Tạo mới</button>
+            <button class="delete" onclick="showDeleteConfirmation()">Xóa</button>
+        </div>
+        <div class="form-container" id="create-form">
+            <h3>Tạo mới thông tin thuê trọ</h3>
+            <div class="form-group">
+                <label for="room-code">Mã phòng trọ</label>
+                <input type="text" id="room-code" placeholder="Mã phòng trọ">
+                <div class="error-message" id="room-code-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="tenant-name">Tên người thuê trọ</label>
+                <input type="text" id="tenant-name" placeholder="Tên người thuê trọ">
+                <div class="error-message" id="tenant-name-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="phone-number">Số điện thoại</label>
+                <input type="text" id="phone-number" placeholder="Số điện thoại">
+                <div class="error-message" id="phone-number-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="start-date">Ngày bắt đầu thuê</label>
+                <input type="date" id="start-date">
+                <div class="error-message" id="start-date-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="payment-type">Hình thức thanh toán</label>
+                <select id="payment-type">
+                    <option value="">-- Chọn hình thức thanh toán --</option>
+                    <option value="1">Theo tháng</option>
+                    <option value="2">Theo quý</option>
+                    <option value="3">Theo năm</option>
+                </select>
+                <div class="error-message" id="payment-type-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="notes">Ghi chú</label>
+                <textarea id="notes" placeholder="Ghi chú"></textarea>
+            </div>
+            <div class="form-buttons">
+                <button class="cancel" onclick="hideCreateForm()">Hủy</button>
+                <button class="submit" onclick="createRental()">Tạo mới</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom modal for delete confirmation -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-content">
+            <h3>Xác nhận xóa</h3>
+            <p id="delete-confirm-message">Bạn có muốn xóa thông tin thuê trọ đã chọn hay không?</p>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="hideDeleteConfirmation()">Không</button>
+                <button class="confirm" onclick="deleteSelected()">Có</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        let rentals = [
+            { id: 1, roomCode: 'PT-001', tenantName: 'Nguyễn Văn A', phoneNumber: '0123456789', startDate: '2020-10-01', paymentType: 1, notes: '' },
+            { id: 2, roomCode: 'PT-002', tenantName: 'Nguyễn Văn B', phoneNumber: '0123456789', startDate: '2020-10-01', paymentType: 2, notes: '' },
+            { id: 3, roomCode: 'PT-003', tenantName: 'Nguyễn Văn C', phoneNumber: '0123456789', startDate: '2020-10-01', paymentType: 1, notes: '' },
+            { id: 4, roomCode: 'PT-004', tenantName: 'Nguyễn Văn D', phoneNumber: '0123456789', startDate: '2020-10-01', paymentType: 3, notes: '' }
+        ];
+
+        // Load rentals when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRentals();
+            setMinDate();
+        });
+
+        // Set minimum date for start date input
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start-date').min = today;
+        }
+
+        // Load rentals into table
+        function loadRentals(filteredRentals = null) {
+            const tableBody = document.getElementById('rental-table-body');
+            tableBody.innerHTML = '';
+            
+            const dataToDisplay = filteredRentals || rentals;
+            
+            if (dataToDisplay.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="8" class="no-data">Không có dữ liệu</td></tr>`;
+                return;
+            }
+            
+            dataToDisplay.forEach((rental, index) => {
+                const paymentTypeText = rental.paymentType === 1 ? 'Theo tháng' : 
+                                        rental.paymentType === 2 ? 'Theo quý' : 'Theo năm';
+                
+                const formattedDate = formatDate(rental.startDate);
+                
+                const row = `
+                    <tr>
+                        <td><input type="checkbox" class="rental-checkbox" data-id="${rental.id}" data-room-code="${rental.roomCode}"></td>
+                        <td>${index + 1}</td>
+                        <td>${rental.roomCode}</td>
+                        <td>${rental.tenantName}</td>
+                        <td>${rental.phoneNumber}</td>
+                        <td>${formattedDate}</td>
+                        <td>${paymentTypeText}</td>
+                        <td>${rental.notes}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Format date as dd-mm-yyyy
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        // Toggle select all checkboxes
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.rental-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        // Search rentals
+        function searchRentals() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            
+            if (!query) {
+                loadRentals();
+                return;
+            }
+            
+            const filteredRentals = rentals.filter(rental => 
+                rental.roomCode.toLowerCase().includes(query) || 
+                rental.tenantName.toLowerCase().includes(query) || 
+                rental.phoneNumber.includes(query)
+            );
+            
+            loadRentals(filteredRentals);
+        }
+
+        // Show create form
+        function showCreateForm() {
+            document.getElementById('create-form').style.display = 'block';
+            // Reset form
+            document.getElementById('room-code').value = '';
+            document.getElementById('tenant-name').value = '';
+            document.getElementById('phone-number').value = '';
+            document.getElementById('start-date').value = '';
+            document.getElementById('payment-type').value = '';
+            document.getElementById('notes').value = '';
+            
+            // Clear error messages
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Hide create form
+        function hideCreateForm() {
+            document.getElementById('create-form').style.display = 'none';
+        }
+
+        // Validate tenant name
+        function validateTenantName(name) {
+            if (!name) return 'Tên người thuê trọ không được để trống';
+            if (name.length < 5 || name.length > 50) return 'Tên người thuê trọ phải từ 5 đến 50 ký tự';
+            if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(name)) return 'Tên người thuê trọ không được chứa ký tự số và ký tự đặc biệt';
+            return null;
+        }
+
+        // Validate phone number
+        function validatePhoneNumber(phone) {
+            if (!phone) return 'Số điện thoại không được để trống';
+            if (!/^\d{10}$/.test(phone)) return 'Số điện thoại phải là 10 ký tự số';
+            return null;
+        }
+
+        // Validate start date
+        function validateStartDate(date) {
+            if (!date) return 'Ngày bắt đầu thuê không được để trống';
+            
+            const selectedDate = new Date(date);
+            const today = new Date();
+            
+            // Reset time part for comparison
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) return 'Ngày bắt đầu thuê không được là ngày quá khứ';
+            return null;
+        }
+
+        // Validate payment type
+        function validatePaymentType(type) {
+            if (!type) return 'Vui lòng chọn hình thức thanh toán';
+            return null;
+        }
+
+        // Validate room code
+        function validateRoomCode(code) {
+            if (!code) return 'Mã phòng trọ không được để trống';
+            // Check if room code already exists
+            const exists = rentals.some(rental => rental.roomCode === code);
+            if (exists) return 'Mã phòng trọ đã tồn tại';
+            return null;
+        }
+
+        // Create rental
+        function createRental() {
+            const roomCode = document.getElementById('room-code').value.trim();
+            const tenantName = document.getElementById('tenant-name').value.trim();
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+            const startDate = document.getElementById('start-date').value;
+            const paymentType = document.getElementById('payment-type').value;
+            const notes = document.getElementById('notes').value.trim();
+            
+            // Validate all fields
+            let isValid = true;
+            
+            // Validate room code
+            const roomCodeError = validateRoomCode(roomCode);
+            document.getElementById('room-code-error').textContent = roomCodeError || '';
+            document.getElementById('room-code-error').style.display = roomCodeError ? 'block' : 'none';
+            isValid = isValid && !roomCodeError;
+            
+            // Validate tenant name
+            const tenantNameError = validateTenantName(tenantName);
+            document.getElementById('tenant-name-error').textContent = tenantNameError || '';
+            document.getElementById('tenant-name-error').style.display = tenantNameError ? 'block' : 'none';
+            isValid = isValid && !tenantNameError;
+            
+            // Validate phone number
+            const phoneNumberError = validatePhoneNumber(phoneNumber);
+            document.getElementById('phone-number-error').textContent = phoneNumberError || '';
+            document.getElementById('phone-number-error').style.display = phoneNumberError ? 'block' : 'none';
+            isValid = isValid && !phoneNumberError;
+            
+            // Validate start date
+            const startDateError = validateStartDate(startDate);
+            document.getElementById('start-date-error').textContent = startDateError || '';
+            document.getElementById('start-date-error').style.display = startDateError ? 'block' : 'none';
+            isValid = isValid && !startDateError;
+            
+            // Validate payment type
+            const paymentTypeError = validatePaymentType(paymentType);
+            document.getElementById('payment-type-error').textContent = paymentTypeError || '';
+            document.getElementById('payment-type-error').style.display = paymentTypeError ? 'block' : 'none';
+            isValid = isValid && !paymentTypeError;
+            
+            if (!isValid) return;
+            
+            // Create new rental object
+            const newRental = {
+                id: rentals.length + 1,
+                roomCode,
+                tenantName,
+                phoneNumber, 
+                startDate,
+                paymentType: parseInt(paymentType),
+                notes
+            };
+            
+            // Add to rentals array
+            rentals.push(newRental);
+            
+            // Reload the rentals list
+            loadRentals();
+            
+            // Hide create form
+            hideCreateForm();
+        }
+
+        // Show delete confirmation dialog
+        function showDeleteConfirmation() {
+            const checkboxes = document.querySelectorAll('.rental-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('Vui lòng chọn ít nhất một phòng trọ để xóa');
+                return;
+            }
+            
+            // Get room codes of selected rentals
+            const roomCodes = Array.from(checkboxes).map(checkbox => 
+                checkbox.getAttribute('data-room-code')
+            );
+            
+            // Create confirmation message
+            const confirmMessage = `Bạn có muốn xóa thông tin thuê trọ ${roomCodes.join(', ')} hay không?`;
+            document.getElementById('delete-confirm-message').textContent = confirmMessage;
+            
+            // Show modal
+            document.getElementById('delete-modal').style.display = 'flex';
+        }
+
+        // Hide delete confirmation dialog
+        function hideDeleteConfirmation() {
+            document.getElementById('delete-modal').style.display = 'none';
+        }
+
+        // Delete selected rentals
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.rental-checkbox:checked');
+            const idsToDelete = Array.from(checkboxes).map(checkbox => 
+                parseInt(checkbox.getAttribute('data-id'))
+            );
+            
+            // Filter out deleted rentals
+            rentals = rentals.filter(rental => !idsToDelete.includes(rental.id));
+            
+            // Reload rentals list
+            loadRentals();
+            
+            // Hide modal
+            hideDeleteConfirmation();
+            
+            // Uncheck select all checkbox
+            document.getElementById('select-all').checked = false;
+        }
+    </script>
+</body>
+</html>

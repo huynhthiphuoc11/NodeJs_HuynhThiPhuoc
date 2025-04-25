@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Rental</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create New Rental</h1>
+        <form id="createRentalForm">
+            <div class="form-group">
+                <label for="rentalName">Rental Name:</label>
+                <input type="text" id="rentalName" name="rentalName" required>
+            </div>
+            <div class="form-group">
+                <label for="rentalLocation">Location:</label>
+                <input type="text" id="rentalLocation" name="rentalLocation" required>
+            </div>
+            <div class="form-group">
+                <label for="rentalPrice">Price:</label>
+                <input type="number" id="rentalPrice" name="rentalPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="rentalDescription">Description:</label>
+                <textarea id="rentalDescription" name="rentalDescription" required></textarea>
+            </div>
+            <button type="submit">Create Rental</button>
+        </form>
+        <div id="message"></div>
+    </div>
+    <script src="../js/rental.js"></script>
+</body>
+</html>
